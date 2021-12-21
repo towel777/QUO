@@ -8,6 +8,8 @@ def create_app():
         SECRET_KEY='dev',
         DATABASE="",
     )
+    from . import db
+    db.init_app(app)
 
     @app.route('/hello')
     def hello():
