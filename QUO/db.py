@@ -12,7 +12,7 @@ def init_app(app):
 
 
 def init_db():
-
+    from .models import User, Company
     db.create_all()
 
 
