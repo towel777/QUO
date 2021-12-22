@@ -7,6 +7,8 @@ class User(db.Model):
     email = db.Column(db.VARCHAR(255), unique=True)
     psw = db.Column(db.VARCHAR(500), nullable=False)
     admin_status = db.Column(db.BOOLEAN, default=False, nullable=False)
+    full_name = db.Column(db.VARCHAR(100), nullable=True)
+    pdp = db.Column(db.VARCHAR(100), nullable=True, unique=True)
 
     company_id = db.Column(db.Integer, db.ForeignKey('Company.company_id'), nullable=False)
 
