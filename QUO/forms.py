@@ -6,7 +6,7 @@ from .models import User, Company
 class UserForm(ModelForm):
     class Meta:
         model = User
-        only = ['email', 'admin_status', 'psw']
+        only = ['email', 'admin_status', 'psw', 'full_name', 'pdp']
 
 
 class CompanyForm(ModelForm):
