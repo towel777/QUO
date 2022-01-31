@@ -1,0 +1,18 @@
+@import './helpers/global.scss';
+
+body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+}
+.test__class {
+      width: 200px;
+      height: 200px;
+      border: 1px solid black;
+      font-family: 'MontserratBold';
+}
+h1{
+      font-family: 'MontserratBold';
+      color: $Purple;
+}
