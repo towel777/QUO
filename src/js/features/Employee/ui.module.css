@@ -1,0 +1,101 @@
+.box{
+    background-color: #fff;
+    width: 910px;
+    height: 586px;
+    margin: 95px auto;
+    border-radius: 20px;
+    padding: 88px 82px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.info{
+    font-size: 38px;
+    font-weight: bold;
+}
+.name{
+    text-align: end;
+}
+.infoList div{
+    margin-bottom: 42px;
+}
+.btn{
+    font-size: 22px;
+    color: #fff;
+    border-radius: 10px;
+    width: 195px;
+    padding: 16px 0;
+    text-align: center;
+    background-color: #5480A9;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    align-self: end;
+}
+.btn:hover{
+    background-color: #6D95BA;
+}
+.content{
+    display: flex;
+    height: 100%;
+}
+.flexContainer{
+    width: 290px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #fff;
+}
+.listContainer{
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+.listElement{
+    margin: 40px 0;
+}
+.listElementLink{
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+    padding: 12px 48px;
+    margin: 0;
+    text-decoration: none;
+    color: #000;
+}
+.listElementLinkActive,
+.listElementLink:hover{
+    text-align: center;
+    background-color: #5480A9;
+    border-radius: 10px;
+    font-size: 22px;
+    font-weight: bold;
+    padding: 12px 48px;
+    margin: 0;
+    text-decoration: none;
+    color: #fff;
+}
+.paginationBox{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+.pagination{
+    margin-bottom: 35px;
+    font-size: 22px;
+    border: 1px solid #8A8A8A;
+    border-radius: 10px;
+    padding: 8px 0;
+    font-weight: bold;
+    color: #8A8A8A;
+    width: 90px;
+    background-color: #fff;
+}
+.pagination:hover{
+    color: #fff;
+    border: none;
+    background-color: #6D95BA;
+    cursor: pointer;
+}

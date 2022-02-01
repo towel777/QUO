@@ -1,0 +1,17 @@
+*{
+    font-family: arial, serif;
+}
+.box{
+    display: flex;
+    height: 100vh;
+}
+.routeBox{
+    width: 89%;
+    height: 100%;
+    background-color: #F9F7F7;
+}
+.menuBox{
+    width: 11%;
+    height: 100%;
+    max-width: 180px;
+}

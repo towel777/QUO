@@ -1,0 +1,37 @@
+.box{
+    background-color: #fff;
+    width: 1145px;
+    height: 586px;
+    margin: 95px auto;
+    border-radius: 20px;
+    padding: 88px 82px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.info{
+    font-size: 38px;
+    font-weight: bold;
+}
+.name{
+    text-align: end;
+}
+.infoList div{
+    margin-bottom: 42px;
+}
+.btn{
+    font-size: 22px;
+    color: #fff;
+    border-radius: 10px;
+    width: 195px;
+    padding: 16px 0;
+    text-align: center;
+    background-color: #5480A9;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    align-self: end;
+}
+.btn:hover{
+    background-color: #6D95BA;
+}

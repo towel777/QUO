@@ -1,0 +1,83 @@
+.content{
+    height: 100vh;
+}
+.header{
+    display: flex;
+    justify-content: space-around;
+    flex-direction: row;
+    height: 15%;
+}
+.headerEl{
+    width: 33.33%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.headerEl p {
+    font-size: 40px;
+    font-weight: bold;
+    color: #fff;
+    margin-left: 16px;
+}
+.elementFirst{
+    background-color: #7DD8AB;
+}
+.elementSecond{
+    background-color: #F9BA5E;
+}
+.elementThird{
+    background-color: #E26177;
+}
+.columnTasks{
+    display: flex;
+    flex-direction: row;
+    height: 85%;
+}
+.tasksList{
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    overflow: auto;
+    flex-grow: 0.33333;
+    min-width: 33.33%;
+    -ms-overflow-style: none;
+}
+.tasksList::-webkit-scrollbar { width: 0; }
+.tasksEl{
+    width: 370px;
+    height: 189px;
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 16px;
+    margin: 26px auto;
+    cursor: pointer;
+}
+.taskIcon{
+float: right;
+}
+.taskHeader{
+font-size: 20px;
+font-weight: bold;
+margin-left: 10px;
+}
+.taskDesc{
+font-size: 14px;
+margin: 0 34px;
+min-height: 84px;
+}
+.btnBox{
+display: flex;
+justify-content: space-between;
+}
+.singleBtn{
+justify-content: end;
+}
+.btn{
+padding: 8px;
+width: 142px;
+border: none;
+color: #fff;
+font-weight: bold;
+font-size: 22px;
+border-radius: 10px;
+}
