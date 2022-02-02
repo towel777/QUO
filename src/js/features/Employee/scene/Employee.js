@@ -6,7 +6,7 @@ import {NavLink, useParams} from "react-router-dom";
 export const Employee = ({id, fullName, position, email, pdp}) => {
     const {empoyeerId} = useParams()
 
-    if (empoyeerId === id) {
+    if (empoyeerId == id) {
         return (
             <div className={ui.box} >
                 <div className={`${ui.info} ${ui.name}`}>{fullName}</div>
