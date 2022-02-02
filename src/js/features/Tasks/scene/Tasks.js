@@ -7,11 +7,23 @@ import {
     process,
     finished
 } from "../svgIcons";
-import {useState} from "react";
 import {compose} from "redux";
 import {connect} from "react-redux";
+import {dropTask, setCurrent} from "../core/tasksReducer";
+import FullTask from "./modal/FullTask";
+import {useState} from "react";
 
-const Tasks = ({board, numberColumn, dragOverHandler, dragStartHandler, dropCardHandler}) => {
+const Tasks = ({
+                   boards,
+                   numberColumn,
+                   dragOverHandler,
+                   dragStartHandler,
+                   dropCardHandler,
+                   openFullTask,
+                   openModal,
+                   setOpenModal,
+                   fullTask
+}) => {
 
 
     return (
@@ -31,62 +43,42 @@ const Tasks = ({board, numberColumn, dragOverHandler, dragStartHandler, dropCard
                 </div>
             </div>
             <div className={ui.columnTasks}>
-                {board.map(board =>
+                {boards.map(board =>
                     <ul
                         className={ui.tasksList}
                         onDragOver={e => dragOverHandler(e)}
                         onDrop={e => dropCardHandler(e,board)}
+                        key={board.id}
                     >
-                        {board.tasks.map(item =>
+                        {board.tasks.map(task =>
                             <li
+                                key={task.id}
                                 onDragOver={e => dragOverHandler(e)}
-                                onDragStart={e => dragStartHandler(e,board,item)}
+                                onDragStart={e => dragStartHandler(e,board,task)}
                                 draggable={true}
                                 className={ui.tasksEl}
+                                onClick={() => openFullTask(task)}
                             >
                                 <div className={ui.taskIcon}>{numberColumn(board.id)}</div>
-                                <h3 className={ui.taskHeader}>{item.title}</h3>
-                                <p className={ui.taskDesc}>{item.description}</p>
+                                <h3 className={ui.taskHeader}>{task.title}</h3>
+                                <p className={ui.taskDesc}>{task.description}</p>
                             </li>
                         )}
                     </ul>
                 )}
             </div>
-            {/*<div className={ui.columnTasks}>*/}
-            {/*    {boards.map(board =>*/}
-            {/*        <ul*/}
-            {/*            className={ui.tasksList}*/}
-            {/*            onDragOver={e => dragOverHandler(e)}*/}
-            {/*            onDrop={e => dropCardHandler(e,board)}*/}
-            {/*        >*/}
-            {/*            {board.items.map(item =>*/}
-            {/*                <li*/}
-            {/*                    onDragOver={e => dragOverHandler(e)}*/}
-            {/*                    onDragStart={e => dragStartHandler(e,board,item)}*/}
-            {/*                    draggable={true}*/}
-            {/*                    className={ui.tasksEl}*/}
-            {/*                >*/}
-            {/*                    <div className={ui.taskIcon}>{numberColumn(board.id)}</div>*/}
-            {/*                    <h3 className={ui.taskHeader}>{item.title}</h3>*/}
-            {/*                    <p className={ui.taskDesc}>{item.description}</p>*/}
-            {/*                </li>*/}
-            {/*            )}*/}
-            {/*        </ul>*/}
-            {/*    )}*/}
-            {/*</div>*/}
+            {openModal && <FullTask
+                setOpenModal={setOpenModal}
+                fullTask={fullTask}
+            />}
         </div>
     )
 }
 
-export const TasksContainer = ({tasks}) => {
-    const board = tasks.boards
-    console.log(board)
-    const [boards, setBoards] = useState([
-        {id: 1, items: []},
-        {id: 2, items: []},
-        {id: 3, items: []}
-    ])
-
+export const TasksContainer = (props) => {
+    const boards = props.tasks.boards
+    const currentBoard = props.tasks.currentBoard
+    const currentTask = props.tasks.currentTask
 
     const numberColumn = (id) => {
         switch (id) {
@@ -102,33 +94,46 @@ export const TasksContainer = ({tasks}) => {
             default: return
         }
     }
-
     const dragOverHandler = (e) => {
         e.preventDefault()
     }
 
-    const dragStartHandler = (e, board) => {
-        test(board)
+    const dragStartHandler = (e, board, task) => {
+        props.setCurrent(board, task)
     }
 
     const dropCardHandler = (e, board) => {
-        board.items.push(currentItem)
-        const currentIndex = currentBoard.items.indexOf(currentItem)
-        currentBoard.items.splice(currentIndex, 1)
-        setBoards(boards.map(b => {
-            if (b.id === board.id) return board
-            if (b.id === currentBoard.id) return currentBoard
-            return b
-        }))
+        board.tasks.push(currentTask)
+        currentBoard.tasks.splice(currentBoard.tasks.indexOf(currentTask), 1)
+        props.dropTask(
+            boards.map(b => {
+                if (b.id === board.id) {
+                    board.tasks.map(m => m.status = board.tasksStatus)
+                    return board
+                }
+                if (b.id === currentBoard.id) return currentBoard
+                return b
+            })
+        )
+    }
+    const [openModal, setOpenModal] = useState(false)
+    const [fullTask, setFullTask] = useState(null)
+
+    const openFullTask = (task) => {
+        setFullTask(task)
+        setOpenModal(true)
     }
 
     return <Tasks
-        board={board}
         boards={boards}
         numberColumn={numberColumn}
         dragOverHandler={dragOverHandler}
         dragStartHandler={dragStartHandler}
         dropCardHandler={dropCardHandler}
+        openFullTask={openFullTask}
+        openModal={openModal}
+        setOpenModal={setOpenModal}
+        fullTask={fullTask}
     />
 }
 const mapStateToProps = (state) => {
@@ -137,4 +142,5 @@ const mapStateToProps = (state) => {
     }
 }
 
-export const TasksComposer = compose(connect(mapStateToProps))(TasksContainer)
+
+export const TasksComposer = compose(connect(mapStateToProps, {setCurrent, dropTask}))(TasksContainer)
