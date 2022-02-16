@@ -1,9 +1,12 @@
 import functools
 import secrets
+from time import time
+from json import dumps
 
-from flask import Blueprint, g, session, request, redirect, url_for, flash, render_template
+from flask import Blueprint, g, session, request, redirect, url_for, flash, render_template, abort
 from werkzeug.security import generate_password_hash, check_password_hash
 from marshmallow import ValidationError
+from jwt import encode
 
 from .db import db
 from .forms import UserForm, CompanyForm
@@ -11,6 +14,13 @@ from .models import User, Company, PositionCompany
 from .schemas import CompanySchema, UserSchema
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
+bp.config = {}
+
+
+@bp.record
+def record_params(setup_state):
+    app = setup_state.app
+    bp.config = dict([(key, value) for (key, value) in app.config.items() if key == "SECRET_KEY"])
 
 
 def login_required(view):
@@ -41,6 +51,11 @@ def load_user():
         g.user = user
     else:
         g.user = None
+
+
+def get_reset_psw_token(email: str, expires_in=600):
+    return encode({"active": "reset_psw", "email": email, "exp": time() + expires_in},
+                  bp.config["SECRET_KEY"], algorithm='HS256').decode('utf-8')
 
 
 @bp.route("/registerCompany", methods=("GET", "POST"))
@@ -86,7 +101,7 @@ def register_employee():
     return render_template('auth/regcomp.html', forms=[form_user])
 
 
-@bp.route("/api/NewCompany", methods=("GET", "POST"))
+@bp.route("/api/NewCompany", methods=("POST", ))
 def test_route():
     if request.method == "POST":
         company_schema = CompanySchema(exclude=("company_id",))
@@ -139,7 +154,7 @@ def logout():
 @bp.route("/api/NewEmployee", methods=("POST",))
 @login_required
 @admin_required
-def test_dumps():
+def new_employee():
     admin_company = g.user
 
     try:
@@ -163,3 +178,36 @@ def test_dumps():
     db.session.commit()
 
     return "Create new employee", 200
+
+
+@bp.route("/api/changeProfile", methods=("POST",))
+@login_required
+def changeProfile():
+    try:
+        user_change = UserSchema(only=("user_id", "full_name", "pdp")).load(request.get_json())
+    except ValidationError as e:
+        return "Json not valid", 422
+
+    if g.user.user_id != user_change.user_id:
+        abort(403)
+
+    user_db = User.query.filter_by(user_id=user_change.user_id).first()
+
+    user_db.full_name = user_change.full_name
+    user_db.pdp = user_change.pdp
+
+    del user_change
+
+    db.session.commit()
+
+    return "Ok", 200
+
+
+@bp.route("/api/profile", methods=("GET",))
+@login_required
+def profile():
+
+    user_json = UserSchema(exclude=("psw", "company", "position")).dump(g.user)
+    user_json["position"] = g.user.position.position
+
+    return dumps(user_json), 200
