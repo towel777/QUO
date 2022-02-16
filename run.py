@@ -1,3 +1,3 @@
-from flaskr import create_app
+from QUO import create_app
 
 app = create_app()
