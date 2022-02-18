@@ -1,0 +1,104 @@
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+input[type="number"]:hover,
+input[type="number"]:focus {
+    -moz-appearance: textfield;
+}
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.nonTopMargin{
+    margin-top: 0;
+}
+
+.testContent{
+    position: fixed;
+    overflow: auto;
+    height: 100vh;
+    width: 100vw;
+    top: 0;
+    left: 0;
+    background-color: #F9F7F7;
+}
+.testBox{
+    display: flex;
+    justify-content: space-evenly;
+    margin-top: 50px;
+}
+.buttonBox{
+    display: flex;
+}
+.deleteButton{
+    margin-left: 20px;
+    background-color: #DE5959;
+}
+.deleteButton:hover{
+    background-color: #DC2929;
+}
+.rightColumn{
+    height: 250px;
+    width: 20%;
+    max-width: 255px;
+}
+.rightColumnForms{
+    margin: 20px;
+    min-height: 110px;
+}
+.rightColumnField{
+    max-width: 183px;
+    margin-bottom: 4px;
+}
+.textErrorPosition{
+    float: none;
+    margin: 0;
+}
+.inputBox{
+    text-align: center;
+    padding: 8px 0;
+}
+.testInformation{
+    margin-top: 0;
+}
+.selectBox{
+   display: flex;
+    flex-direction: column;
+    border: 4px solid #5480A9;
+    border-radius: 10px;
+}
+.selectOption{
+    display: flex;
+    justify-content: space-between;
+    min-width: 183px;
+    padding: 10px;
+    font-size: 18px;
+    outline: none;
+    appearance: none;
+}
+.selectLevel{
+    display: flex;
+}
+.timerBox{
+    margin-top: 40px;
+}
+.testErrorIcon{
+    border: 3px solid #DE5959;
+    color: #DE5959;
+}
+.modalWarning{
+    margin: 35vh auto;
+    width: 24%;
+}
+.modalWarning h1{
+    color: #DC2929;
+}
+.modalWarning p{
+    font-size: 18px;
+}
