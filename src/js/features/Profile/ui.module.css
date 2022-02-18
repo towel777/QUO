@@ -1,4 +1,5 @@
 .box{
+    position: relative;
     background-color: #fff;
     width: 1145px;
     height: 586px;
@@ -7,7 +8,7 @@
     padding: 88px 82px;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: space-evenly;
 }
 .info{
     font-size: 38px;
