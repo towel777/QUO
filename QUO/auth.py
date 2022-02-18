@@ -6,12 +6,12 @@ from json import dumps
 from flask import Blueprint, g, session, request, redirect, url_for, flash, render_template, abort
 from werkzeug.security import generate_password_hash, check_password_hash
 from marshmallow import ValidationError
-from jwt import encode
+from jwt import encode, decode, ExpiredSignatureError
 
 from .db import db
 from .forms import UserForm, CompanyForm
 from .models import User, Company, PositionCompany
-from .schemas import CompanySchema, UserSchema
+from .schemas import CompanySchema, UserSchema, UsersSchema
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 bp.config = {}
@@ -47,14 +47,43 @@ def admin_required(view):
 
 @bp.before_request
 def load_user():
-    if user := User.query.filter_by(user_id=session.get("user_id")).first():
-        g.user = user
+    token_data = {}
+    try:
+        token_data = decode_validation("session", request.get_json().get("session_token", None))
+    except ExpiredSignatureError as e:
+        redirect(url_for("auth.login"))
+
+    if token_data:
+        g.user = User.query.filter_by(user_id=token_data["user_id"]).first_or_404(description='User not find')
+        del request.get_json()["session_token"]
     else:
         g.user = None
 
 
-def get_reset_psw_token(email: str, expires_in=600):
-    return encode({"active": "reset_psw", "email": email, "exp": time() + expires_in},
+def decode_validation(active: str, token):
+    if token is None:
+        return None
+
+    if token_data := decode(token.encode('utf-8'), bp.config["SECRET_KEY"], algorithms='HS256'):
+        if token_data["active"] == active:
+            return token_data
+    return None
+
+
+def create_session_token(user_id: int, expires_in=3600):
+    return encode(
+        {
+            "active": "session",
+            "user_id": user_id,
+            "exp": time() + expires_in
+        },
+        bp.config["SECRET_KEY"],
+        algorithm='HS256'
+    )
+
+
+def get_reset_psw_token(email: str, psw_hash: str, expires_in=432000):
+    return encode({"active": "reset_psw", "email": email, "old_psw_hash": psw_hash, "exp": time() + expires_in},
                   bp.config["SECRET_KEY"], algorithm='HS256').decode('utf-8')
 
 
@@ -101,7 +130,7 @@ def register_employee():
     return render_template('auth/regcomp.html', forms=[form_user])
 
 
-@bp.route("/api/NewCompany", methods=("POST", ))
+@bp.route("/api/NewCompany", methods=("POST",))
 def test_route():
     if request.method == "POST":
         company_schema = CompanySchema(exclude=("company_id",))
@@ -138,9 +167,7 @@ def login():
     user = User.query.filter_by(email=user_from_schema.email).first()
     if user:
         if check_password_hash(user.psw, user_from_schema.psw):
-            session.clear()
-            session["user_id"] = user.user_id
-            return redirect(url_for("hello"))
+            return {"session_token": create_session_token(user.user_id)}
 
     return "data entered incorrectly", 400
 
@@ -206,8 +233,43 @@ def changeProfile():
 @bp.route("/api/profile", methods=("GET",))
 @login_required
 def profile():
-
     user_json = UserSchema(exclude=("psw", "company", "position")).dump(g.user)
     user_json["position"] = g.user.position.position
 
     return dumps(user_json), 200
+
+
+@bp.route("/api/employees", methods=("GET", ))
+@login_required
+def employee():
+    employees = User.query.filter_by(company_id=g.user.company_id).all()
+    return UsersSchema(exclude=("psw", "company"), many=True).dumps(employees)
+
+
+@bp.route("/api/setAdmin", methods=("POST", ))
+@login_required
+@admin_required
+def set_admin():
+    admin_company = g.user
+    try:
+        user_schema = UserSchema(only=("user_id", )).load(request.get_json())
+    except ValidationError as e:
+        return "Json not valid", 422
+
+    user = User.query.filter_by(user_id=user_schema.user_id).first_or_404(description='Not find user')
+
+    if user.company_id != admin_company.company_id:
+        abort(403)
+
+    user.position_id = admin_company.position_id
+    user.admin_status = True
+
+    db.session.commit()
+
+    return "User status change", 200
+
+# @bp.route("/api/test", methods=("POST", "GET"))
+# def test():
+#     print(NewTokenSchema().load(request.get_json()))
+#
+#     return "Ok"

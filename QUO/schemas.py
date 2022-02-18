@@ -1,4 +1,5 @@
 from marshmallow import Schema, fields, post_load
+from jwt import encode, decode
 
 from .models import PositionCompany, User, Company
 
@@ -31,8 +32,12 @@ class UserSchema(Schema):
     full_name = fields.String(required=True)
     pdp = fields.String(required=True)
     company = fields.Nested(CompanySchema(exclude=("employee", "positions")), required=True)
-    position = fields.Nested(PositionCompanySchema(only=("position_id", )), required=True)
+    position = fields.Nested(PositionCompanySchema(only=("position_id",)), required=True)
 
     @post_load
     def post_func(self, data, **kwargs):
         return User(**data)
+
+
+class UsersSchema(UserSchema):
+    position = fields.Nested(PositionCompanySchema(only=("position",)), required=True)
