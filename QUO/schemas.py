@@ -1,7 +1,7 @@
 from marshmallow import Schema, fields, post_load, validate
 from jwt import encode, decode
 
-from .models import PositionCompany, User, Company, Task
+from .models import PositionCompany, User, Company, Task, Test, Question
 
 
 class PositionCompanySchema(Schema):
@@ -56,4 +56,26 @@ class TaskSchema(Schema):
     @post_load
     def post_func(self, data, **kwargs):
         return Task(**data)
+
+
+class QuestionSchema(Schema):
+    question_id = fields.Integer(required=True)
+    body = fields.String(required=True)
+    answer = fields.String(required=True)
+
+    @post_load
+    def post_func(self, data, **kwargs):
+        return Question(**data)
+
+
+class TestSchema(Schema):
+    test_id = fields.Integer(required=True)
+    name = fields.String(required=True)
+    position_id = fields.Integer(required=True)
+
+    questions = fields.List(fields.Nested(QuestionSchema(exclude=("question_id", ))), required=True)
+
+    @post_load
+    def post_func(self, data, **kwargs):
+        return Test(**data)
 
