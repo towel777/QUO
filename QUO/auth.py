@@ -22,6 +22,20 @@ def record_params(setup_state):
     app = setup_state.app
     bp.config = dict([(key, value) for (key, value) in app.config.items() if key == "SECRET_KEY"])
 
+    @app.before_request
+    def load_user():
+        token_data = {}
+        try:
+            token_data = decode_validation("session", request.get_json().get("session_token", None))
+        except ExpiredSignatureError as e:
+            redirect(url_for("auth.login"))
+
+        if token_data:
+            g.user = User.query.filter_by(user_id=token_data["user_id"]).first_or_404(description='User not find')
+            del request.get_json()["session_token"]
+        else:
+            g.user = None
+
 
 def login_required(view):
     @functools.wraps(view)
@@ -43,21 +57,6 @@ def admin_required(view):
         return view(**kwargs)
 
     return wrapped_view
-
-
-@bp.before_request
-def load_user():
-    token_data = {}
-    try:
-        token_data = decode_validation("session", request.get_json().get("session_token", None))
-    except ExpiredSignatureError as e:
-        redirect(url_for("auth.login"))
-
-    if token_data:
-        g.user = User.query.filter_by(user_id=token_data["user_id"]).first_or_404(description='User not find')
-        del request.get_json()["session_token"]
-    else:
-        g.user = None
 
 
 def decode_validation(active: str, token):
