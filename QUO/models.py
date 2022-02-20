@@ -60,7 +60,7 @@ class Task(db.Model):
     task_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.VARCHAR(100), nullable=False)
     body = db.Column(db.VARCHAR(255), nullable=True)
-    state = db.Column(db.Enum(TaskStateChoices), default='Not taken', nullable=False)
+    state = db.Column(db.Enum(TaskStateChoices), default='NOT_TAKEN', nullable=False)
     date_create = db.Column(db.DateTime(timezone=True), server_default=func.now())
     date_start = db.Column(db.Date, nullable=True)
     date_end = db.Column(db.Date, nullable=True)

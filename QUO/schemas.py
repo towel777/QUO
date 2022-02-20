@@ -1,7 +1,7 @@
-from marshmallow import Schema, fields, post_load
+from marshmallow import Schema, fields, post_load, validate
 from jwt import encode, decode
 
-from .models import PositionCompany, User, Company
+from .models import PositionCompany, User, Company, Task
 
 
 class PositionCompanySchema(Schema):
@@ -41,3 +41,19 @@ class UserSchema(Schema):
 
 class UsersSchema(UserSchema):
     position = fields.Nested(PositionCompanySchema(only=("position",)), required=True)
+
+
+class TaskSchema(Schema):
+    task_id = fields.Integer(required=True)
+    name = fields.String(required=True)
+    body = fields.String()
+    state = fields.String(validate=validate.OneOf(['NOT_TAKEN', 'PROCESS', 'FINISHED', 'ARCHIVE']))
+    date_create = fields.DateTime()
+    date_start = fields.Date()
+    date_end = fields.Date()
+    user_id = fields.Integer(required=True)
+
+    @post_load
+    def post_func(self, data, **kwargs):
+        return Task(**data)
+
