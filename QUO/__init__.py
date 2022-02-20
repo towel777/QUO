@@ -26,6 +26,9 @@ def create_app():
     from . import task
     app.register_blueprint(task.bp)
 
+    from . import exam
+    app.register_blueprint(exam.bp)
+
     @app.route('/hello')
     def hello():
         return 'Hello, World!'
