@@ -13,6 +13,7 @@ class PositionCompany(db.Model):
     company_id = db.Column(db.Integer, db.ForeignKey('Company.company_id'), nullable=False)
 
     employee = db.relationship('User', backref=db.backref('position'), lazy=True)
+    tests = db.relationship('Test', backref=db.backref('position'), lazy=True)
 
     def __eq__(self, other):
         return self.position_id == other.position_id
@@ -31,6 +32,7 @@ class User(db.Model):
     company_id = db.Column(db.Integer, db.ForeignKey('Company.company_id'), nullable=False)
 
     task = db.relationship('Task', backref=db.backref('employee'), lazy=True)
+    raise_appls = db.relationship('RaiseAppl', backref=db.backref('employee'), lazy=True)
 
     def __repr__(self):
         return f'<user {self.user_id}>'
@@ -69,3 +71,63 @@ class Task(db.Model):
 
     def __repr__(self):
         return f'<Task {self.task_id}>'
+
+
+class RaiseStateChoices(Enum):
+    SUCCESSFUL = 'successful'
+    ACTIVE = 'active'
+    FAILED = 'failed'
+
+
+class RaiseAppl(db.Model):
+    __tablename__ = "RaiseAppl"
+    appl_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    date_create = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    date_finish = db.Column(db.Date, nullable=True)
+    status = db.Column(db.Enum(RaiseStateChoices), default='ACTIVE', nullable=False)
+
+    position_id = db.Column(db.Integer, db.ForeignKey('PositionCompany.position_id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('User.user_id'), nullable=False)
+
+    def __repr__(self):
+        return f'<RaiseAppl {self.appl_id}>'
+
+
+class TestStateChoices(Enum):
+    ACTIVE = 'active'
+    ARCHIVE = 'archive'
+
+
+class Test(db.Model):
+    __tablename__ = "Test"
+    test_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.VARCHAR(100), nullable=False)
+    status = db.Column(db.Enum(TestStateChoices), default='ACTIVE', nullable=False)
+
+    position_id = db.Column(db.Integer, db.ForeignKey('PositionCompany.position_id'), nullable=False)
+
+    questions = db.relationship('Question', backref=db.backref('test'), lazy=True)
+
+
+class Question(db.Model):
+    __tablename__ = "Question"
+    question_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    body = db.Column(db.VARCHAR(255), nullable=False)
+    answer = db.Column(db.VARCHAR(100), nullable=False)
+
+    test_id = db.Column(db.Integer, db.ForeignKey('Test.test_id'), nullable=False)
+
+
+class TestGreed(Enum):
+    SUCCESSFUL = 'successful'
+    NOT_START = 'not start'
+    FAILED = 'failed'
+
+
+class RaiseTests(db.Model):
+    __tablename__ = "RaiseTests"
+    test_id = db.Column(db.Integer, db.ForeignKey('Test.test_id'), nullable=False, primary_key=True)
+    appl_id = db.Column(db.Integer, db.ForeignKey('RaiseAppl.appl_id'), nullable=False, primary_key=True)
+
+    status = db.Column(db.Enum(TestGreed), default='NOT_START', nullable=False)
+
