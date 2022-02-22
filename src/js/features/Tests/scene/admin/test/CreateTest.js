@@ -31,11 +31,10 @@ const CreateTestsContainer = ({
                                   test,
                                   setStartCreateTest
 }) => {
-
     const isNullOrEmpty = (value) => {
         if (value === undefined || value === null) return true
 
-        if (value.trim() === '') return true
+        if (!Number.isInteger(value) && value.trim() === '') return true
 
         return false
     }
@@ -43,7 +42,7 @@ const CreateTestsContainer = ({
     const requiredTime = value => {
         if (isNullOrEmpty(value)) return 'Field should not be empty'
 
-        if (value.match(/[.,]/)) return 'Only integers'
+        if (!Number.isInteger(value) && value.match(/[.,]/)) return 'Only integers'
 
         if (Number(value) < 0) return 'Only positive number'
     }

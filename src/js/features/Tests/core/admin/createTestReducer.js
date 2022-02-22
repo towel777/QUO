@@ -6,6 +6,7 @@ const DELETE_QUESTION = 'DELETE_QUESTION'
 const SET_ICON_COLOR = 'SET_ICON_COLOR'
 const UPDATE_ICON_COLOR = 'UPDATE_ICON_COLOR'
 export const POST_CREATED_TEST = 'POST_CREATED_TEST'
+const SET_SELECTED_TEST = 'SET_SELECTED_TEST'
 
 const initialState = {
     test: {
@@ -20,14 +21,7 @@ const initialState = {
                 description: '',
                 condition: 'waiting',
                 answer: ''
-            },
-            {
-                id: 2,
-                number: 2,
-                description: 'English from ?',
-                condition: 'waiting',
-                answer: 'Oh in london'
-            },
+            }
         ]
     },
     selectedQuestion: null,
@@ -94,8 +88,19 @@ const createTestReducer = (state = initialState, action) => {
             return {
                 ...state,
                 test: {
-                    ...state.test,
-                    id: generateTestId(action.tests)
+                    id: generateTestId(action.tests),
+                    name: null,
+                    level: 'Junior',
+                    time: null,
+                    questions: [
+                        {
+                            id: 1,
+                            number: 1,
+                            description: '',
+                            condition: 'waiting',
+                            answer: ''
+                        }
+                    ]
                 }
             }
         }
@@ -165,6 +170,12 @@ const createTestReducer = (state = initialState, action) => {
                 }
             }
         }
+        case SET_SELECTED_TEST: {
+            return {
+                ...state,
+                test: action.test[0]
+            }
+        }
         default:
             return state
     }
@@ -178,5 +189,6 @@ export const setIconColor = (question) => ({type: SET_ICON_COLOR, question})
 export const updateIconColor = (id, condition) => ({type: UPDATE_ICON_COLOR, id, condition})
 export const updateQuestion = (id, description, answer) => ({type: UPDATE_QUESTION, id, description, answer})
 export const postCreatedTest = (test) => ({type: POST_CREATED_TEST, test})
+export const setCreatedTest = (test) => ({type: SET_SELECTED_TEST, test})
 
 export default createTestReducer

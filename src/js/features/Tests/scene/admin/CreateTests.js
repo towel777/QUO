@@ -4,7 +4,7 @@ import {connect} from "react-redux";
 import {useEffect, useState} from "react";
 import {deleteCreatedTest, getCreatedTests, setIsFetching} from "../../core/admin/createTestsReducer";
 import {CreateTestComposer} from "./test/CreateTest";
-import {createNewTest} from "../../core/admin/createTestReducer";
+import {createNewTest, setCreatedTest} from "../../core/admin/createTestReducer";
 
 const CreateLevelContainer = ({selectTestsLevel}) => {
     return (
@@ -25,10 +25,17 @@ const CreateLevel = ({levelName, selectTestsLevel}) => {
     )
 }
 
-const CreateOrEditTestContainer = ({tests, selectedLevel, deleteCreatedTest, setIsFetching, isFetching}) => {
+const CreateOrEditTestContainer = ({
+                                       tests,
+                                       selectedLevel,
+                                       deleteCreatedTest,
+                                       setIsFetching,
+                                       isFetching,
+                                       setCreatedTest,
+                                       setStartCreateTest,
+                                       setStartCreateTestPreview}) => {
 
     const [createTestsList, setCreateTestsList] = useState([])
-
 
     useEffect(() => {
         const testList = (level) => {
@@ -60,11 +67,23 @@ const CreateOrEditTestContainer = ({tests, selectedLevel, deleteCreatedTest, set
         deleteCreatedTest(id)
     }
 
+    const selectTestForEdit = (id, createTestsList) => {
+        setCreatedTest(createTestsList.filter(t => t.id === id))
+        setStartCreateTest(true)
+        setStartCreateTestPreview(false)
+    }
+
     return (
         <div className={ui.CreateOrEditTestContainer}>
             {isFetching ? <div>123</div> : createTestsList.length !== 0
                 ? createTestsList.map(t => {
-                    return <CreateOrEditTest key={t.id} id={t.id} name={t.name} deleteTest={deleteTest}/>
+                    return <CreateOrEditTest
+                        createTestsList={createTestsList}
+                        selectTestForEdit={selectTestForEdit}
+                        key={t.id}
+                        id={t.id}
+                        name={t.name}
+                        deleteTest={deleteTest}/>
                 })
                 : <div>No tests</div>
             }
@@ -72,13 +91,13 @@ const CreateOrEditTestContainer = ({tests, selectedLevel, deleteCreatedTest, set
     )
 }
 
-const CreateOrEditTest = ({name, id, deleteTest}) => {
+const CreateOrEditTest = ({name, id, deleteTest, selectTestForEdit, createTestsList}) => {
 
     return (
         <div className={ui.chooseContent}>
             <div className={ui.chooseText}>{name}</div>
             <div className={ui.btnBox}>
-                <button onClick={() => console.log(1)} className={`${ui.chooseBtn}`}>Edit</button>
+                <button onClick={() => selectTestForEdit(id, createTestsList)} className={`${ui.chooseBtn}`}>Edit</button>
                 <button onClick={() => deleteTest(id)} className={`${ui.chooseBtn} ${ui.deleteBtn}`}>Delete</button>
             </div>
         </div>
@@ -95,7 +114,9 @@ const PreviewModal = ({
                           deleteCreatedTest,
                           setIsFetching,
                           isFetching,
-                          startCreateNewTest
+                          startCreateNewTest,
+                          setCreatedTest,
+                          setStartCreateTest
 }) => {
     return (
         <div className={ui.content} onClick={() => {
@@ -114,7 +135,10 @@ const PreviewModal = ({
                                 deleteCreatedTest={deleteCreatedTest}
                                 tests={tests}
                                 selectedLevel={selectedLevel}
-                                startCreateNewTest={startCreateNewTest}/>
+                                startCreateNewTest={startCreateNewTest}
+                                setCreatedTest={setCreatedTest}
+                                setStartCreateTest={setStartCreateTest}
+                                setStartCreateTestPreview={setStartCreateTestPreview}/>
                             : <CreateLevelContainer selectTestsLevel={selectTestsLevel}/>}
                     </div>
                 </div>
@@ -134,7 +158,8 @@ const PreviewModalContainer = ({
                                    deleteCreatedTest,
                                    setIsFetching,
                                    isFetching,
-                                   createNewTest
+                                   createNewTest,
+                                   setCreatedTest
 }) => {
     const [startCreateTest, setStartCreateTest] = useState(false)
     const [startCreateTestPreview, setStartCreateTestPreview] = useState(false)
@@ -164,12 +189,14 @@ const PreviewModalContainer = ({
                 selectTestsLevel={selectTestsLevel}
                 chooseLevel={chooseLevel}
                 setChooseLevel={setChooseLevel}
+                setStartCreateTest={setStartCreateTest}
                 setStartCreateTestPreview={setStartCreateTestPreview}
                 selectedLevel={selectedLevel}
                 deleteCreatedTest={deleteCreatedTest}
                 setIsFetching={setIsFetching}
                 isFetching={isFetching}
-                startCreateNewTest={startCreateNewTest}/>}
+                startCreateNewTest={startCreateNewTest}
+                setCreatedTest={setCreatedTest}/>}
             {startCreateTest &&  <CreateTestComposer setStartCreateTest={setStartCreateTest} />}
             <button className={classButton} onClick={() => startCreateTests()}>Create tests</button>
         </div>
@@ -188,5 +215,6 @@ export const CreateTestsComposer = compose(connect(mapStateToProps,
         getCreatedTests,
         deleteCreatedTest,
         setIsFetching,
-        createNewTest
+        createNewTest,
+        setCreatedTest
     }))(PreviewModalContainer)
