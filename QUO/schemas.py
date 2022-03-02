@@ -1,7 +1,7 @@
 from marshmallow import Schema, fields, post_load, validate
 from jwt import encode, decode
 
-from .models import PositionCompany, User, Company, Task, Test, Question
+from .models import PositionCompany, User, Company, Task, Test, Question, Expert
 
 
 class PositionCompanySchema(Schema):
@@ -71,7 +71,9 @@ class QuestionSchema(Schema):
 class TestSchema(Schema):
     test_id = fields.Integer(required=True)
     name = fields.String(required=True)
+    time = fields.Time(required=True)
     position_id = fields.Integer(required=True)
+    type_test = fields.String(validate=validate.OneOf(['ENGLISH', 'HARD_SKILL', 'SOFT_SKILL']))
 
     questions = fields.List(fields.Nested(QuestionSchema(exclude=("question_id", ))), required=True)
 
@@ -79,3 +81,11 @@ class TestSchema(Schema):
     def post_func(self, data, **kwargs):
         return Test(**data)
 
+
+class ExpertSchema(Schema):
+    exp_type = fields.String(validate=validate.OneOf(['ENGLISH', 'HARD_SKILL', 'SOFT_SKILL']), required=True)
+    expert_id = fields.Integer(required=True)
+
+    @post_load
+    def post_func(self, data, **kwargs):
+        return Expert(**data)
