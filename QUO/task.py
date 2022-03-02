@@ -11,7 +11,7 @@ from .schemas import TaskSchema
 bp = Blueprint("task", __name__, url_prefix="/task")
 
 
-@bp.route("/api/tasks", methods=("GET", ))
+@bp.route("/api/tasks", methods=("POST", ))
 @login_required
 def tasks():
     tasks_for_user = Task.query.filter_by(user_id=g.user.user_id).all()
