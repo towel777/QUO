@@ -5,6 +5,12 @@ from sqlalchemy.sql import func
 from .db import db
 
 
+class TestType(Enum):
+    ENGLISH = 'english'
+    HARD_SKILL = 'hard_skill'
+    SOFT_SKILL = 'soft_skill'
+
+
 class PositionCompany(db.Model):
     __tablename__ = "PositionCompany"
     position_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -33,6 +39,8 @@ class User(db.Model):
 
     task = db.relationship('Task', backref=db.backref('employee'), lazy=True)
     raise_appls = db.relationship('RaiseAppl', backref=db.backref('employee'), lazy=True)
+    skill = db.relationship('Expert', backref=db.backref('expert'), lazy=True)
+    tests_check = db.relationship('RaiseTests', backref=db.backref('expert'), lazy=True)
 
     def __repr__(self):
         return f'<user {self.user_id}>'
@@ -89,6 +97,8 @@ class RaiseAppl(db.Model):
     position_id = db.Column(db.Integer, db.ForeignKey('PositionCompany.position_id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('User.user_id'), nullable=False)
 
+    raise_tests = db.relationship('RaiseTests', backref=db.backref('appl'), lazy=True)
+
     def __repr__(self):
         return f'<RaiseAppl {self.appl_id}>'
 
@@ -102,11 +112,14 @@ class Test(db.Model):
     __tablename__ = "Test"
     test_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.VARCHAR(100), nullable=False)
+    time = db.Column(db.TIME(), nullable=False)
     status = db.Column(db.Enum(TestStateChoices), default='ACTIVE', nullable=False)
+    type_test = db.Column(db.Enum(TestType), nullable=False)
 
     position_id = db.Column(db.Integer, db.ForeignKey('PositionCompany.position_id'), nullable=False)
 
-    questions = db.relationship('Question', backref=db.backref('test'), lazy=True)
+    questions = db.relationship('Question', cascade="all, delete", backref=db.backref('test'), lazy=True)
+    raise_tests = db.relationship('RaiseTests', backref=db.backref('test'), lazy=True)
 
 
 class Question(db.Model):
@@ -119,6 +132,8 @@ class Question(db.Model):
 
 
 class TestGreed(Enum):
+    NOT_RATED = 'not_rated'
+    ACTIVE = 'active'
     SUCCESSFUL = 'successful'
     NOT_START = 'not start'
     FAILED = 'failed'
@@ -130,4 +145,14 @@ class RaiseTests(db.Model):
     appl_id = db.Column(db.Integer, db.ForeignKey('RaiseAppl.appl_id'), nullable=False, primary_key=True)
 
     status = db.Column(db.Enum(TestGreed), default='NOT_START', nullable=False)
+
+    expert_id = db.Column(db.Integer, db.ForeignKey('User.user_id'), nullable=False)
+
+
+class Expert(db.Model):
+    __tablename__ = "Expert"
+    exp_type = db.Column(db.Enum(TestType), primary_key=True)
+    expert_id = db.Column(db.Integer, db.ForeignKey('User.user_id'), primary_key=True)
+
+
 
