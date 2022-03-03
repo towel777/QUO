@@ -1,18 +1,33 @@
 import ui from '../ui.module.css'
-import {BrowserRouter} from "react-router-dom";
 import Login from "./Login";
+import {compose} from "redux";
+import {connect} from "react-redux";
+import {createNewCompany, postLoginAuthentication} from "../core/authentificationReducer";
+import CreateCompany from "./CreateCompany";
+import {useState} from "react";
 
 
+const Authentification = ({postLoginAuthentication, createNewCompany}) => {
 
-const Authentification = () => {
+    const [registration, setRegistration] = useState(false)
+
     return (
-        <BrowserRouter>
+        <div className={ui.content}>
             <div className={ui.box}>
-                <Login />
-                <div>OR</div>
-                <div>New here? Create an account</div>
+                <h1>Authentication form</h1>
+                {registration ? <CreateCompany createNewCompany={createNewCompany} /> : <Login postLoginAuthentication={postLoginAuthentication} />}
+                <p>OR</p>
+                {registration
+                    ? <p className={ui.authenticationSelection} onClick={() => setRegistration(false)}>Login</p>
+                    : <p className={ui.authenticationSelection} onClick={() => setRegistration(true)}>Create new company</p>}
             </div>
-        </BrowserRouter>
+        </div>
     )
 }
-export default  Authentification
+const mapStateToProps = (state) => {
+    return {
+        authentification: state.authentification
+    }
+}
+
+export const AuthentificationComposer = compose(connect(mapStateToProps, {postLoginAuthentication, createNewCompany}))(Authentification)
