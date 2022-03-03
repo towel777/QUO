@@ -324,10 +324,10 @@ const CreateTest = ({
                                 </div>
                             )}
                         </Field>
+                        <Field name="employed" component="input" type="checkbox" />
                         <div className={uiCreateTest.buttonBox}>
                             <button className={ui.button} type="submit">Save</button>
                             {questions.length > 1 && <div onClick={() => deleteCreatedQuestion()} className={`${ui.button} ${uiCreateTest.deleteButton}`}>Delete</div>}
-
                         </div>
                     </form>
                 )}
