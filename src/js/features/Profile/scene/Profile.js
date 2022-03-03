@@ -1,6 +1,6 @@
 import ui from "../ui.module.css"
 import {ImproveSkillsComposer} from "./Modal/ImproveSkills";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {TestsComposer} from "../../Tests/scene/Test";
 import {connect} from "react-redux";
 import {compose} from "redux";
@@ -9,6 +9,8 @@ import {Icon} from "./admin/Icon";
 import {getTests} from "../../Tests/core/testsReducer";
 import {setTest} from "../../Tests/core/testReducer";
 import {CreateTestsComposer} from "../../Tests/scene/admin/CreateTests";
+import {getProfileMe} from "../core/profileReducer";
+import {useMount} from "react-use";
 
 export const Profile = ({
     fullName,
@@ -50,8 +52,15 @@ export const ProfileContainer = ({
     pdp,
     status,
     getTests,
-    setTest
+    setTest,
+    getProfileMe,
+    authentification
     }) => {
+
+    useEffect(() => {
+        getProfileMe(authentification.session_token)
+    }, [authentification])
+
     const [modalActive, setModalActive] = useState(false)
     const [isActiveTests, setActiveTests] = useState(false)
     const [testWarning, setTestWarning] = useState(false)
@@ -100,9 +109,10 @@ const mapStateToProps = (state) => {
         email: state.profile.email,
         pdp: state.profile.pdp,
         status: state.profile.status,
-        tests: state.tests
+        tests: state.tests,
+        authentification: state.authentification
     }
 }
 
-export const ProfileComposer = compose(connect(mapStateToProps, {getTests, setTest}))(ProfileContainer)
+export const ProfileComposer = compose(connect(mapStateToProps, {getTests, setTest, getProfileMe}))(ProfileContainer)
 

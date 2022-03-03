@@ -1,4 +1,4 @@
-
+export const GET_PROFILE_ME = 'GET_PROFILE_ME'
 
 const initialState = {
     id: 1,
@@ -16,5 +16,7 @@ const profileReducer = (state = initialState, action) => {
             return state
     }
 }
+
+export const getProfileMe = (session_token) => ({type: GET_PROFILE_ME, session_token})
 
 export default profileReducer

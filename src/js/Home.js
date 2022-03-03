@@ -13,6 +13,7 @@ const Home = () => {
             </div>
             <div className={ui.routeBox}>
                 <Routes>
+                    <Route path="/" element={<ProfileComposer />} />
                     <Route path="/profile" element={<ProfileComposer />} />
                     <Route path="/employee/:empoyeerId" element={<EmployeeComposer/>} />
                     <Route path="/employee/" element={<EmployeeComposer/>} />

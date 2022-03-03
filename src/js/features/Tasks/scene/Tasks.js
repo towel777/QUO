@@ -9,9 +9,10 @@ import {
 } from "../svgIcons";
 import {compose} from "redux";
 import {connect} from "react-redux";
-import {dropTask, setCurrent} from "../core/tasksReducer";
+import {dropTask, getTasks, setCurrent} from "../core/tasksReducer";
 import FullTask from "./modal/FullTask";
 import {useState} from "react";
+import {useMount} from "react-use";
 
 const Tasks = ({
                    boards,
@@ -76,6 +77,11 @@ const Tasks = ({
 }
 
 export const TasksContainer = (props) => {
+
+    useMount(() => {
+        props.getTasks()
+    })
+
     const boards = props.tasks.boards
     const currentBoard = props.tasks.currentBoard
     const currentTask = props.tasks.currentTask
@@ -143,4 +149,4 @@ const mapStateToProps = (state) => {
 }
 
 
-export const TasksComposer = compose(connect(mapStateToProps, {setCurrent, dropTask}))(TasksContainer)
+export const TasksComposer = compose(connect(mapStateToProps, {setCurrent, dropTask, getTasks}))(TasksContainer)

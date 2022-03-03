@@ -5,12 +5,13 @@ import Home from "./js/Home";
 import {BrowserRouter} from "react-router-dom";
 import store from "./js/store/store";
 import {Provider} from "react-redux";
+import {AppComposer} from "./js/App";
 
 ReactDOM.render(
   <React.StrictMode>
       <BrowserRouter>
           <Provider store={store}>
-              <Home/>
+              <AppComposer />
           </Provider>
       </BrowserRouter>
   </React.StrictMode>,
