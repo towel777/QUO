@@ -2,6 +2,9 @@ import ui from "../ui.module.css"
 import {compose} from "redux";
 import {connect} from "react-redux";
 import {NavLink, useParams} from "react-router-dom";
+import {getEmployee} from "../core/employeeReducer";
+import {useLocation, useMount} from "react-use";
+import {ResultComposer} from "../../Tests/ResultTest/ResultTests";
 
 export const Employee = ({id, fullName, position, email, pdp}) => {
     const {empoyeerId} = useParams()
@@ -16,6 +19,7 @@ export const Employee = ({id, fullName, position, email, pdp}) => {
                     <div className={ui.info}>{pdp}</div>
                 </div>
                 <button className={ui.btn}>Employee tasks</button>
+                <ResultComposer buttonUi={ui.btn} />
             </div>
         )
     } else return null
@@ -43,6 +47,12 @@ export const EmployeeList = ({employees}) => {
 
 export const EmployeeContainer = (props) => {
 
+    const location = useLocation().pathname
+
+    useMount(() => {
+        props.getEmployee()
+    })
+
     const workers = props.employee
 
     return (
@@ -50,6 +60,7 @@ export const EmployeeContainer = (props) => {
             <EmployeeList
                 employees={workers}
             />
+            {location === '/employee'  && <div className={ui.selectEmployee}>Select employee</div>}
             {
                 workers.map(w => {
 
@@ -74,5 +85,5 @@ const mapStateToProps = (state) => {
 }
 
 export const EmployeeComposer = compose(
-    connect(mapStateToProps)
+    connect(mapStateToProps, {getEmployee})
 )(EmployeeContainer)
