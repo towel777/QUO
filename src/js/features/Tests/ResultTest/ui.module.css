@@ -1,0 +1,78 @@
+.prevButton{
+    align-self: end;
+}
+.content{
+    height: 100vh;
+    width: 100vw;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+.modal {
+    background-color: #fff;
+    width: 40%;
+    border: none;
+    border-radius: 20px;
+    margin: 50px auto;
+    padding: 20px 30px;
+}
+.header{
+    text-align: center;
+    font-size: 36px;
+    border-bottom: 3px solid #000;
+    padding-bottom: 25px;
+}
+.chooseBox{
+    border: 2px solid #5480A9;
+    border-radius: 6px 6px 0 0;
+    margin-bottom: 10px;
+}
+.chooseHeader{
+    background-color: #5480A9;
+    margin: 0;
+    padding: 20px 50px;
+    color: #fff;
+}
+.chooseContent{
+    padding: 20px 50px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.chooseText{
+    font-size: 18px;
+}
+.btnBox{
+    width: 32%;
+    display: flex;
+    justify-content: space-between;
+}
+.chooseBtn{
+    background-color: #5480A9;
+    border: none;
+    border-radius: 10px;
+    font-size: 18px;
+    color: #fff;
+    padding: 5px 25px;
+    cursor: pointer;
+}
+.chooseBtn:hover{
+    background-color: #6D95BA;
+}
+.questions{
+    width: 86%;
+    max-width: none;
+}
+.questionsContent{
+    display: flex;
+    justify-content: space-between;
+}
+.questionBox{
+    width: 90%;
+}
+.question{
+    border-bottom: 3px solid #DC2929;
+    margin: 20px 0;
+}

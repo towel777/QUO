@@ -52,9 +52,19 @@
     font-weight: bold;
     color: #fff;
     border: none;
-    width: 143px;
+    width: 168px;
 }
 .btn:hover{
     cursor: pointer;
     background-color: #B76E79;
+}
+.addEmployeeButton{
+    background-color: #47B8DC;
+    border: 1px solid #fff;
+}
+.addEmployeeButton:hover{
+    background-color: #5480A9;
+    border: 1px solid #5480A9;
+    text-decoration: none;
+
 }

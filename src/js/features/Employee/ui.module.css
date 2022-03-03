@@ -99,3 +99,10 @@
     background-color: #6D95BA;
     cursor: pointer;
 }
+.selectEmployee{
+    color: rgb(79, 83, 102);
+    width: 82%;
+    text-align: center;
+    margin: auto;
+    font-size: 78px;
+}
