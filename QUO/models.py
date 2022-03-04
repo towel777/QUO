@@ -130,6 +130,8 @@ class Question(db.Model):
 
     test_id = db.Column(db.Integer, db.ForeignKey('Test.test_id'), nullable=False)
 
+    user_answers = db.relationship('AnswerUser', backref=db.backref('question'), lazy=True)
+
 
 class TestGreed(Enum):
     NOT_RATED = 'not_rated'
@@ -155,4 +157,11 @@ class Expert(db.Model):
     expert_id = db.Column(db.Integer, db.ForeignKey('User.user_id'), primary_key=True)
 
 
+class AnswerUser(db.Model):
+    __tablename__ = "AnswerUser"
+    test_id = db.Column(db.Integer, db.ForeignKey('Test.test_id'), nullable=False)
+    appl_id = db.Column(db.Integer, db.ForeignKey('RaiseAppl.appl_id'), nullable=False)
+    answer = db.Column(db.VARCHAR(255), nullable=False)
+    correctly = db.Column(db.BOOLEAN, nullable=False)
 
+    question_id = db.Column(db.Integer, db.ForeignKey('Question.question_id'), nullable=False, primary_key=True)

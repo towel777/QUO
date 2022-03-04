@@ -1,3 +1,4 @@
+import datetime
 import functools
 import secrets
 from time import time
@@ -219,7 +220,10 @@ def new_employee():
 
     token_reset_psw = get_reset_psw_token(user_from_schema.email, user_from_schema.psw)
 
-    send_post(user_from_schema.email, f'You can rest psw on this link linc/resetPsw/?token_psw={token_reset_psw}')
+    send_post(
+        user_from_schema.email,
+        f'You can rest psw on this link http://localhost:3000/changePassword/resetPsw/?token_psw={token_reset_psw}'
+    )
 
     db.session.add(user_from_schema)
     db.session.commit()
@@ -259,20 +263,20 @@ def profile():
     return dumps(user_json), 200
 
 
-@bp.route("/api/employees", methods=("POST", ))
+@bp.route("/api/employees", methods=("POST",))
 @login_required
 def employee():
     employees = User.query.filter_by(company_id=g.user.company_id).all()
     return UsersSchema(exclude=("psw", "company"), many=True).dumps(employees)
 
 
-@bp.route("/api/setAdmin", methods=("POST", ))
+@bp.route("/api/setAdmin", methods=("POST",))
 @login_required
 @admin_required
 def set_admin():
     admin_company = g.user
     try:
-        user_schema = UserSchema(only=("user_id", )).load(request.get_json())
+        user_schema = UserSchema(only=("user_id",)).load(request.get_json())
     except ValidationError as e:
         return "Json not valid", 422
 
@@ -289,7 +293,7 @@ def set_admin():
     return "User status change", 200
 
 
-@bp.route("/resetPsw/<token_psw>", methods=("POST", ))
+@bp.route("/resetPsw/<token_psw>", methods=("POST",))
 def reset_psw(token_psw):
     try:
         token_data = decode_validation("reset_psw", token_psw)
@@ -302,7 +306,7 @@ def reset_psw(token_psw):
     user = User.query.filter_by(email=token_data["email"]).first_or_404(description="User not find")
 
     try:
-        new_user = UserSchema(only=("psw", )).load(request.get_json())
+        new_user = UserSchema(only=("psw",)).load(request.get_json())
     except ValidationError as e:
         return "Psw not valid", 422
 
@@ -316,7 +320,7 @@ def reset_psw(token_psw):
     return "Password changed", 200
 
 
-@bp.route("/api/positions", methods=("POST", ))
+@bp.route("/api/positions", methods=("POST",))
 @login_required
 def positions():
     positions_company = PositionCompany.query.filter_by(company_id=g.user.company_id).all()
@@ -334,6 +338,24 @@ def send_post(email, mgs: str):
 
     server.quit()
 
+
+def create_test_token(token_data):
+    token_data['active'] = 'test_token'
+    token_data['create_time'] = str(datetime.datetime.now())
+    return encode(
+        token_data,
+        bp.config["SECRET_KEY"],
+        algorithm='HS256'
+    )
+
+
+def expert_token(token_data):
+    token_data['active'] = 'expert_token'
+    return encode(
+        token_data,
+        bp.config["SECRET_KEY"],
+        algorithm='HS256'
+    )
 
 # @bp.route("/api/test", methods=("POST", "GET"))
 # def test():

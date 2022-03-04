@@ -1,13 +1,16 @@
 import datetime
+from json import dumps
 
 from flask import Blueprint, g, request, abort
 from marshmallow import ValidationError
 from sqlalchemy import func, text
 
-from .auth import login_required, admin_required
-from .schemas import TestSchema, ExpertSchema, PositionCompanySchema
+from .auth import login_required, admin_required, create_test_token, decode_validation, expert_token, send_post
+from .schemas import TestSchema, ExpertSchema, PositionCompanySchema, RaiseTestsSchema, QuestionSchema,\
+    AnswerTestSchema, AnswerUserSchema
 from .db import db
-from .models import PositionCompany, TestStateChoices, Test, RaiseTests, TestGreed, User, RaiseAppl, Expert, RaiseStateChoices
+from .models import PositionCompany, TestStateChoices, Test, RaiseTests, TestGreed, User, RaiseAppl, Expert, \
+    RaiseStateChoices, Question, AnswerUser
 
 bp = Blueprint("exam", __name__, url_prefix="/exam")
 
@@ -159,3 +162,145 @@ def create_raise_test(test_id: int, type_test):
     raise_test = RaiseTests(expert_id=raise_test_expert[0], status='NOT_START', test_id=test_id)
 
     return raise_test
+
+
+@bp.route('/api/activeRaise', methods=('POST',))
+@login_required
+def active_raise():
+    active_appl = RaiseAppl.query.filter_by(user_id=g.user.user_id, status='ACTIVE').first()
+
+    if not active_appl:
+        return "Not find active raise", 400
+
+    return RaiseTestsSchema(many=True).dumps(RaiseTests.query.filter_by(appl_id=active_appl.appl_id).all()), 200
+
+
+@bp.route('/api/startTest', methods=('POST',))
+@login_required
+def start_test():
+    try:
+        test_raise = RaiseTestsSchema(only=('test_id', 'appl_id')).load(request.get_json())
+    except ValidationError as e:
+        return "Json not valid", 422
+
+    if not RaiseAppl.query.filter_by(appl_id=test_raise['appl_id'], user_id=g.user.user_id, status='ACTIVE'):
+        return "Not find test for user", 400
+
+    raise_test = RaiseTests.query.filter_by(
+        test_id=test_raise['test_id'],
+        appl_id=test_raise['appl_id'],
+        status='NOT_START'
+    ).first()
+
+    if not raise_test:
+        return "Test was complete earlier", 400
+
+    raise_test.status = TestGreed.ACTIVE
+
+    questions = QuestionSchema(many=True, only=('question_id', 'body')).dump(
+        Question.query.filter_by(
+            test_id=test_raise['test_id']
+        ).all()
+    )
+
+    token_test = create_test_token({
+        "test_id": test_raise['test_id'],
+        'appl_id': test_raise['appl_id']
+    })
+
+    ret_data = {
+        'token_test': token_test,
+        'questions': questions
+    }
+
+    db.session.commit()
+    return dumps(ret_data), 200
+
+
+@bp.route('/api/endTest/<token_test>', methods=("POST",))
+def end_test(token_test):
+    token_data = decode_validation('test_token', token_test)
+
+    raise_test = RaiseTests.query.filter_by(test_id=token_data['test_id'], appl_id=token_data['appl_id']).first()
+
+    if raise_test.status != TestGreed.ACTIVE:
+        return "Test was complete earlier", 400
+
+    test_time = raise_test.test.time
+
+    if datetime.datetime.strptime(
+            token_data['create_time'], '%Y-%m-%d %H:%M:%S.%f'
+    ) + datetime.timedelta(
+        hours=test_time.hour,
+        minutes=test_time.minute,
+        seconds=test_time.second
+    ) < datetime.datetime.now():
+        raise_test.status = TestGreed.FAILED
+        db.session.commit()
+        return "time test end", 400
+
+    try:
+        answers_user = AnswerTestSchema().load(request.get_json()).get("answers")
+    except ValidationError as e:
+        return "Json not valid", 422
+
+    questions = dict(map(
+        lambda x: (x.question_id, x.answer),
+        Question.query.filter_by(test_id=token_data['test_id']).all()))
+
+    def check_answer(answer):
+        corectly_answer = questions.get(answer.question_id)
+
+        if not corectly_answer:
+            return "Not find question in this test", 400
+
+        answer.correctly = answer.answer.lower() == corectly_answer.lower()
+        answer.test_id = token_data['test_id']
+        answer.appl_id = token_data['appl_id']
+
+        return answer
+
+    for item in map(check_answer, answers_user):
+        db.session.add(item)
+
+    raise_test.status = TestGreed.NOT_RATED
+
+    db.session.commit()
+
+    send_post(
+        User.query.filter_by(user_id=raise_test.expert_id).first().email,
+        f'Check test for this linc {expert_token({"test_id": raise_test.test_id,"appl_id": raise_test.appl_id})}'
+    )
+
+    return "Ok", 200
+
+
+@bp.route('/api/expertCheck/<token_expert>', methods=("POST", ))
+def expert_check(token_expert):
+    token_data = decode_validation('expert_token', token_expert)
+
+    raise_test = RaiseTests.query.filter_by(test_id=token_data['test_id'], appl_id=token_data['appl_id']).first()
+
+    if raise_test.status != TestGreed.NOT_RATED:
+        return "You can't evaluation this test", 400
+
+    answers_user = AnswerUser.query.filter_by(test_id=token_data['test_id'], appl_id=token_data['appl_id']).all()
+
+    return AnswerUserSchema(many=True, only=('answer', 'correctly', 'question')).dumps(answers_user), 200
+
+
+@bp.route('/api/expertGrade/<token_expert>', methods=("POST", ))
+def expert_Grade(token_expert):
+    token_data = decode_validation('expert_token', token_expert)
+
+    raise_test = RaiseTests.query.filter_by(test_id=token_data['test_id'], appl_id=token_data['appl_id']).first()
+
+    if raise_test.status != TestGreed.NOT_RATED:
+        return "You can't evaluation this test", 400
+
+    if grade := request.get_json().get("grade"):
+        raise_test.status = TestGreed.SUCCESSFUL if grade else TestGreed.FAILED
+        db.session.commit()
+        return "Ok", 200
+
+    return "Grade not set", 400
