@@ -300,7 +300,25 @@ def expert_Grade(token_expert):
 
     if grade := request.get_json().get("grade"):
         raise_test.status = TestGreed.SUCCESSFUL if grade else TestGreed.FAILED
+        appl_raise = RaiseAppl.query.filter_by(appl_id=token_data['appl_id']).first()
+        appl_raise.status = check_all_grade(token_data['appl_id'])
         db.session.commit()
         return "Ok", 200
 
     return "Grade not set", 400
+
+
+def check_all_grade(appl_id):
+    grade_appl = set(map(lambda x: x.status, RaiseTests.query.filter_by(appl_id=appl_id).all()))
+
+    if len(grade_appl) > 1:
+        return RaiseStateChoices.ACTIVE
+
+    if grade_appl.pop() == TestGreed.FAILED:
+        return RaiseStateChoices.FAILED
+
+    if grade_appl.pop() == TestGreed.SUCCESSFUL:
+        return RaiseStateChoices.SUCCESSFUL
+
+    return RaiseStateChoices.ACTIVE
+
