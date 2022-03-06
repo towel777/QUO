@@ -69,6 +69,10 @@ export const users = {
         debugger
         return instance.post(`auth/api/NewEmployee`, {session_token, email, full_name, admin_status, position})
             .then(response => response.data)
+    },
+    getAllEmployeers (session_token) {
+        return instance.post(`auth/api/employees`, {session_token})
+            .then(response => response.data)
     }
 }
 

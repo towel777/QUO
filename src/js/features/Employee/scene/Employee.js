@@ -5,16 +5,18 @@ import {NavLink, useParams} from "react-router-dom";
 import {getEmployee} from "../core/employeeReducer";
 import {useLocation, useMount} from "react-use";
 import {ResultComposer} from "../../Tests/ResultTest/ResultTests";
+import {Icon} from "../../Profile/scene/admin/Icon";
 
-export const Employee = ({id, fullName, position, email, pdp}) => {
+export const Employee = ({id, fullName, position, email, pdp, status}) => {
     const {empoyeerId} = useParams()
 
     if (empoyeerId == id) {
         return (
             <div className={ui.box} >
+                {status && <Icon />}
                 <div className={`${ui.info} ${ui.name}`}>{fullName}</div>
                 <div className={ui.infoList}>
-                    <div className={ui.info}>{position}r</div>
+                    <div className={ui.info}>{position}</div>
                     <div className={ui.info}>{email}</div>
                     <div className={ui.info}>{pdp}</div>
                 </div>
@@ -46,11 +48,12 @@ export const EmployeeList = ({employees}) => {
 }
 
 export const EmployeeContainer = (props) => {
+    console.log(props)
 
     const location = useLocation().pathname
 
     useMount(() => {
-        props.getEmployee()
+        props.getEmployee(props.authentification.session_token)
     })
 
     const workers = props.employee
@@ -71,6 +74,7 @@ export const EmployeeContainer = (props) => {
                         position={w.position}
                         email={w.email}
                         pdp={w.pdp}
+                        status={w.status}
                     />
                 })
             }
@@ -80,7 +84,8 @@ export const EmployeeContainer = (props) => {
 
 const mapStateToProps = (state) => {
     return {
-        employee: state.employee.employee
+        employee: state.employee.employee,
+        authentification: state.authentification
     }
 }
 

@@ -1,5 +1,6 @@
 .box{
     background-color: #fff;
+    position: relative;
     width: 910px;
     height: 586px;
     margin: 95px auto;

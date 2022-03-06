@@ -10,7 +10,6 @@ import {getTests} from "../../Tests/core/testsReducer";
 import {setTest} from "../../Tests/core/testReducer";
 import {CreateTestsComposer} from "../../Tests/scene/admin/CreateTests";
 import {getProfileMe} from "../core/profileReducer";
-import {useMount} from "react-use";
 
 export const Profile = ({
     fullName,
