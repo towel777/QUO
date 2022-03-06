@@ -68,3 +68,12 @@
     text-decoration: none;
 
 }
+.logotypeBox{
+    display: flex;
+    align-items: center;
+    margin: 56px 0;
+}
+.logotypeBox h1 {
+    color: #fff;
+    margin-left: 10px;
+}

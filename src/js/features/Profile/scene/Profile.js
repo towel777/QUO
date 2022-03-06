@@ -24,12 +24,13 @@ export const Profile = ({
     startTest,
     isActiveTests,
     testWarning,
-    modalActive
+    modalActive,
+    status
 }) => {
 
     return (
         <div className={ui.box} >
-            <Icon />
+            {status && <Icon/>}
             <div className={`${ui.info} ${ui.name}`}>{fullName}</div>
             <div className={ui.infoList}>
                 <div className={ui.info}>{position}</div>
@@ -37,7 +38,7 @@ export const Profile = ({
                 <div className={ui.info}>{pdp}</div>
             </div>
             <button className={ui.btn} onClick={() => startImprovedSkills()}>Improve skills</button>
-            <CreateTestsComposer classButton={ui.btn} />
+            {status && <CreateTestsComposer classButton={ui.btn}/>}
             {modalActive && <ImproveSkillsComposer warning={warning} setModalActive={setModalActive} />}
             {testWarning && <TestWarningContainer setTestWarning={setTestWarning} startTest={startTest}/>}
             {isActiveTests && <TestsComposer />}

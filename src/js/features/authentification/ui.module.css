@@ -32,3 +32,11 @@
 .authenticationSelection:hover{
     color: #000;
 }
+.logotypeBox{
+    display: flex;
+    justify-content: center;
+    margin: 26px 0;
+}
+.logotypeBox h1 {
+    margin: auto 20px
+}

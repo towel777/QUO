@@ -5,6 +5,7 @@ import {connect} from "react-redux";
 import {createNewCompany, postLoginAuthentication} from "../core/authentificationReducer";
 import CreateCompany from "./CreateCompany";
 import {useState} from "react";
+import {getLogotypeIcon} from "../../../../icons/logotype";
 
 
 const Authentification = ({postLoginAuthentication, createNewCompany}) => {
@@ -14,6 +15,10 @@ const Authentification = ({postLoginAuthentication, createNewCompany}) => {
     return (
         <div className={ui.content}>
             <div className={ui.box}>
+                <header className={ui.logotypeBox}>
+                    {getLogotypeIcon(50, 50)}
+                    <h1>QUO</h1>
+                </header>
                 <h1>Authentication form</h1>
                 {registration ? <CreateCompany createNewCompany={createNewCompany} /> : <Login postLoginAuthentication={postLoginAuthentication} />}
                 <p>OR</p>

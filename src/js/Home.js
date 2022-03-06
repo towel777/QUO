@@ -1,4 +1,4 @@
-import Menu from "./features/Menu/scene/Menu";
+import {MenuComposer} from "./features/Menu/scene/Menu";
 import {Route, Routes} from "react-router-dom";
 import {ProfileComposer} from "./features/Profile/scene/Profile";
 import {EmployeeComposer} from "./features/Employee/scene/Employee";
@@ -9,7 +9,7 @@ const Home = () => {
     return (
         <div className={ui.box} >
             <div className={ui.menuBox}>
-                <Menu />
+                <MenuComposer />
             </div>
             <div className={ui.routeBox}>
                 <Routes>
