@@ -322,3 +322,23 @@ def check_all_grade(appl_id):
 
     return RaiseStateChoices.ACTIVE
 
+
+@bp.route('/api/tests', methods=("POST", ))
+@login_required
+@admin_required
+def tests():
+    positions = PositionCompany.query.filter_by(company_id=g.user.company_id).subquery()
+    company_tests = Test.query.join(positions, positions.c.position_id == Test.position_id).all()
+
+    return TestSchema(many=True, exclude=('questions', )).dumps(company_tests)
+
+
+@bp.route('/api/questions/<int:test_id>', methods=("POST", ))
+@login_required
+@admin_required
+def questions(test_id):
+    return QuestionSchema(many=True, only=('question_id', 'body', 'answer')).dumps(
+        Question.query.filter_by(
+            test_id=test_id
+        ).all()
+    )
