@@ -89,3 +89,11 @@ def change_task():
     db.session.commit()
 
     return "Task change", 200
+
+
+@bp.route("/api/adminTasks/<int:user_id>", methods=("POST", ))
+@login_required
+@admin_required
+def admin_tasks(user_id):
+    tasks_for_user = Task.query.filter_by(user_id=user_id).all()
+    return TaskSchema(exclude=("user_id", ), many=True).dumps(tasks_for_user)
