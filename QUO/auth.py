@@ -222,7 +222,7 @@ def new_employee():
 
     send_post(
         user_from_schema.email,
-        f'You can rest psw on this link http://localhost:3000/changePassword/resetPsw/?token_psw={token_reset_psw}'
+        f'You can rest psw on this link https://quo-test.herokuapp.com/auth/resetPsw/{token_reset_psw}'
     )
 
     db.session.add(user_from_schema)

@@ -57,12 +57,27 @@ def change_test():
         db.session.delete(test)
     else:
         test.status = TestStateChoices.ARCHIVE
-    print(type(new_test))
 
     db.session.add(new_test)
     db.session.commit()
 
     return "Test changed", 200
+
+
+@bp.route('/api/deleteTest/<int:test_id>', methods=("POST", ))
+@login_required
+@admin_required
+def delete_test(test_id):
+    test = Test.query.filter_by(test_id=test_id).first_or_404(description="Not find")
+
+    if not RaiseTests.query.filter_by(test_id=test.test_id).first():
+        db.session.delete(test)
+    else:
+        test.status = TestStateChoices.ARCHIVE
+
+    db.session.commit()
+
+    return "Ok", 200
 
 
 @bp.route("/api/setExpert", methods=("POST",))
@@ -328,7 +343,10 @@ def check_all_grade(appl_id):
 @admin_required
 def tests():
     positions = PositionCompany.query.filter_by(company_id=g.user.company_id).subquery()
-    company_tests = Test.query.join(positions, positions.c.position_id == Test.position_id).all()
+    company_tests = Test.query.select_from(Test).filter_by(status='ACTIVE').join(
+        positions,
+        positions.c.position_id == Test.position_id
+    ).all()
 
     return TestSchema(many=True, exclude=('questions', )).dumps(company_tests)
 
